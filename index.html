@@ -6,6 +6,27 @@
     <title>Block-Element-Escape</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
+        /* custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* for firefox scrollbar */
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+        }
+
         /* delete spin button */
         input::-webkit-outer-spin-button,
         input::-webkit-inner-spin-button {
@@ -13,17 +34,21 @@
             margin: 0;
         }
 
-        /* for firefox */
+        /* for firefox spin*/
         input[type=number] {
             appearance: textfield;
             -moz-appearance: textfield;
         }
     </style>
 </head>
-<body class="bg-black text-white flex items-center justify-center min-h-screen p-6 uppercase tracking-tighter">
+<body class="bg-black text-white flex flex-col items-center min-h-screen p-6 uppercase tracking-tighter pt-24">
 
     <div class="w-full max-w-2xl space-y-4">
-        <div class="flex items-center justify-between px-1">
+        <div class="relative flex items-center justify-between px-1 h-12">
+            <div id="warningMsg" class="absolute -top-6 left-0 right-0 text-center text-[9px] transition-all duration-300 opacity-0 pointer-events-none tracking-normal lowercase">
+                警告: このカウントを増やすと指数関数的に文字の量が増えるためブラウザがクラッシュする可能性があります。
+            </div>
+
             <button id="modeToggle" class="text-[10px] text-white/40 hover:text-white transition-all cursor-pointer border border-white/15 px-3 py-1.5 rounded-md hover:border-white/40 hover:bg-white/5 active:scale-95">
                 Mode: Encode
             </button>
@@ -35,6 +60,7 @@
                     id="countInput" 
                     value="1" 
                     min="1"
+                    max="5"
                     class="w-10 bg-transparent text-center text-[10px] font-mono text-white focus:outline-none border-x border-white/10 py-1.5"
                 >
                 <button id="countUp" class="px-3 py-1.5 text-[10px] text-white/40 hover:text-white hover:bg-white/10 transition-colors cursor-pointer">+</button>
@@ -69,6 +95,7 @@
         };
         const REVERSE_BLOCK_MAP = Object.fromEntries(Object.entries(UNICODE_BLOCK_MAP).map(([k, v]) => [v, k]));
 
+        const MAX_ITERATION_COUNT = 5;
         const inputEl = document.getElementById('textInput');
         const outputEl = document.getElementById('textOutput');
         const modeToggle = document.getElementById('modeToggle');
@@ -76,6 +103,7 @@
         const countInput = document.getElementById('countInput');
         const countUp = document.getElementById('countUp');
         const countDown = document.getElementById('countDown');
+        const warningMsg = document.getElementById('warningMsg');
 
         let isEncodeMode = true;
 
@@ -84,10 +112,10 @@
             let result = text;
             for (let i = 0; i < iterations; i++) {
                 result = result.split('')
-                    .map(char => char.charCodeAt(0).toString(16).padStart(4, '0'))
+                    .map(char => char.charCodeAt(0).toString(16).padStart(4, '0')) // 16進数に変換 (配列の状態)
                     .join('')
                     .split('')
-                    .map(hchar => UNICODE_BLOCK_MAP[hchar] || '')
+                    .map(hchar => UNICODE_BLOCK_MAP[hchar] || '') // 配列を展開したその文字ごとにmapとの参照をかけてblockに変換
                     .join('');
             }
             return result;
@@ -97,7 +125,7 @@
             if (!blocks) return "";
             let result = blocks;
             for (let i = 0; i < iterations; i++) {
-                const hex = [...result].map(b => REVERSE_BLOCK_MAP[b] || '').join('');
+                const hex = [...result].map(b => REVERSE_BLOCK_MAP[b] || '').join(''); // 逆向きの戻す専用のマップから16進数へと復元
                 let temp = '';
                 for (let j = 0; j < hex.length; j += 4) {
                     const part = hex.substr(j, 4);
@@ -112,12 +140,22 @@
         function update() {
             const val = inputEl.value;
             const iterations = parseInt(countInput.value) || 1;
+
+            if (iterations >= 3) {
+                warningMsg.style.opacity = "1";
+                warningMsg.className = `absolute -top-6 left-0 right-0 text-center text-[9px] transition-all duration-300 tracking-normal lowercase ${iterations >= 4 ? 'text-red-500/80' : 'text-yellow-500/60'}`;
+            } else {
+                warningMsg.style.opacity = "0";
+            }
+
             outputEl.textContent = isEncodeMode ? convertToBlockElement(val, iterations) : deconvertFromBlockElement(val, iterations);
         }
 
         countUp.addEventListener('click', () => {
-            countInput.value = parseInt(countInput.value) + 1;
-            update();
+            if (parseInt(countInput.value) < MAX_ITERATION_COUNT) {
+                countInput.value = parseInt(countInput.value) + 1;
+                update();
+            }
         });
         countDown.addEventListener('click', () => {
             if (parseInt(countInput.value) > 1) {
@@ -140,7 +178,7 @@
             navigator.clipboard.writeText(outputEl.textContent);
             const originalText = copyBtn.textContent;
             copyBtn.textContent = "Copied!";
-            setTimeout(() => copyBtn.textContent = originalText, 1000);
+            setTimeout(() => copyBtn.textContent = originalText, 1500);
         });
     </script>
 </body>

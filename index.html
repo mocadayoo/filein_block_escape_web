@@ -21,7 +21,7 @@
             background: rgba(255, 255, 255, 0.2);
         }
 
-        /* for firefox scrollbar */
+        /* for firefox */
         * {
             scrollbar-width: thin;
             scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
@@ -34,10 +34,18 @@
             margin: 0;
         }
 
-        /* for firefox spin*/
+        /* for firefox */
         input[type=number] {
             appearance: textfield;
             -moz-appearance: textfield;
+        }
+
+        /* glass effect */
+        .glass {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
     </style>
 </head>
@@ -86,6 +94,34 @@
         </div>
     </div>
 
+    <button id="openCredit" class="fixed bottom-6 right-6 text-[10px] text-white/15 hover:text-white/40 transition-colors cursor-pointer uppercase">
+        Credit
+    </button>
+
+    <div id="creditModal" class="fixed inset-0 z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300 bg-black/40 backdrop-blur-sm">
+        <div class="glass w-full max-w-xs p-8 rounded-2xl relative space-y-6 text-center">
+            <button id="closeCredit" class="absolute top-4 right-4 text-white/20 hover:text-white transition-colors cursor-pointer p-1">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+
+            <div class="space-y-4 lowercase tracking-normal text-[11px]">
+                <div class="space-y-1">
+                    <p class="text-white/20 uppercase text-[9px] tracking-widest">Idea & Original Project</p>
+                    <a href="https://github.com/filein-dev/Block-Elements-Escape/" target="_blank" class="block text-white/60 hover:text-white underline underline-offset-4 decoration-white/10 transition-colors">Filein / Block-Elements-Escape</a>
+                </div>
+
+                <div class="space-y-1">
+                    <p class="text-white/20 uppercase text-[9px] tracking-widest">Dev</p>
+                    <a href="https://github.com/mocadayoo" target="_blank" class="block text-white/60 hover:text-white underline underline-offset-4 decoration-white/10 transition-colors">@mocadayoo</a>
+                </div>
+
+                <div class="space-y-1 pt-2">
+                    <a href="https://github.com/mocadayoo/filein_block_escape_web" target="_blank" class="inline-block px-4 py-2 border border-white/10 rounded-full text-white/30 hover:text-white hover:bg-white/5 transition-all active:scale-95">Source Code</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         const UNICODE_BLOCK_MAP = {
             '0': '▐', '1': '░', '2': '▒', '3': '▓',
@@ -96,6 +132,7 @@
         const REVERSE_BLOCK_MAP = Object.fromEntries(Object.entries(UNICODE_BLOCK_MAP).map(([k, v]) => [v, k]));
 
         const MAX_ITERATION_COUNT = 5;
+        // main elements
         const inputEl = document.getElementById('textInput');
         const outputEl = document.getElementById('textOutput');
         const modeToggle = document.getElementById('modeToggle');
@@ -105,6 +142,11 @@
         const countDown = document.getElementById('countDown');
         const warningMsg = document.getElementById('warningMsg');
 
+        // modal elements
+        const openCredit = document.getElementById('openCredit');
+        const closeCredit = document.getElementById('closeCredit');
+        const creditModal = document.getElementById('creditModal');
+
         let isEncodeMode = true;
 
         function convertToBlockElement(text, iterations) {
@@ -112,10 +154,10 @@
             let result = text;
             for (let i = 0; i < iterations; i++) {
                 result = result.split('')
-                    .map(char => char.charCodeAt(0).toString(16).padStart(4, '0')) // 16進数に変換 (配列の状態)
+                    .map(char => char.charCodeAt(0).toString(16).padStart(4, '0'))
                     .join('')
                     .split('')
-                    .map(hchar => UNICODE_BLOCK_MAP[hchar] || '') // 配列を展開したその文字ごとにmapとの参照をかけてblockに変換
+                    .map(hchar => UNICODE_BLOCK_MAP[hchar] || '')
                     .join('');
             }
             return result;
@@ -125,7 +167,7 @@
             if (!blocks) return "";
             let result = blocks;
             for (let i = 0; i < iterations; i++) {
-                const hex = [...result].map(b => REVERSE_BLOCK_MAP[b] || '').join(''); // 逆向きの戻す専用のマップから16進数へと復元
+                const hex = [...result].map(b => REVERSE_BLOCK_MAP[b] || '').join('');
                 let temp = '';
                 for (let j = 0; j < hex.length; j += 4) {
                     const part = hex.substr(j, 4);
@@ -151,6 +193,18 @@
             outputEl.textContent = isEncodeMode ? convertToBlockElement(val, iterations) : deconvertFromBlockElement(val, iterations);
         }
 
+        // Modal Logic
+        openCredit.addEventListener('click', () => {
+            creditModal.classList.remove('opacity-0', 'pointer-events-none');
+        });
+        closeCredit.addEventListener('click', () => {
+            creditModal.classList.add('opacity-0', 'pointer-events-none');
+        });
+        creditModal.addEventListener('click', (e) => {
+            if (e.target === creditModal) closeCredit.click();
+        });
+
+        // Multi Encode/Decode Counter
         countUp.addEventListener('click', () => {
             if (parseInt(countInput.value) < MAX_ITERATION_COUNT) {
                 countInput.value = parseInt(countInput.value) + 1;
@@ -165,6 +219,7 @@
         });
         countInput.addEventListener('input', update);
 
+        // Mode toggle
         modeToggle.addEventListener('click', () => {
             isEncodeMode = !isEncodeMode;
             modeToggle.textContent = `Mode: ${isEncodeMode ? 'Encode' : 'Decode'}`;

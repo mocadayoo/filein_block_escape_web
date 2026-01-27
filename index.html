@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Block-Element-Escape</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-black text-white flex items-center justify-center min-h-screen p-6 uppercase tracking-tighter">
+
+    <div class="w-full max-w-2xl space-y-4">
+        <div class="flex items-center justify-between px-1">
+            <button id="modeToggle" class="text-[10px] text-white/40 hover:text-white transition-colors cursor-pointer">
+                Mode: Encode
+            </button>
+            <button id="copyBtn" class="text-[10px] text-white/40 hover:text-white transition-colors cursor-pointer">Copy</button>
+        </div>
+
+        <div class="space-y-4 text-sm lowercase tracking-normal">
+            <input 
+                type="text" 
+                id="textInput"
+                placeholder="input..."
+                class="flex h-12 w-full rounded-md border border-white/15 bg-transparent px-3 py-2 text-white placeholder:text-white/20 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white transition-all"
+            >
+
+            <div 
+                id="textOutput"
+                class="min-h-[160px] w-full rounded-md border border-white/15 bg-white/5 p-4 text-2xl break-all leading-relaxed text-white"
+            ></div>
+        </div>
+    </div>
+
+    <script>
+        const UNICODE_BLOCK_MAP = {
+            '0': '▐', '1': '░', '2': '▒', '3': '▓',
+            '4': '▔', '5': '▕', '6': '▖', '7': '▗',
+            '8': '▘', '9': '▙', 'a': '▚', 'b': '▛',
+            'c': '▜', 'd': '▝', 'e': '▞', 'f': '▟'
+        };
+        const REVERSE_BLOCK_MAP = Object.fromEntries(Object.entries(UNICODE_BLOCK_MAP).map(([k, v]) => [v, k]));
+
+        const inputEl = document.getElementById('textInput');
+        const outputEl = document.getElementById('textOutput');
+        const modeToggle = document.getElementById('modeToggle');
+        const copyBtn = document.getElementById('copyBtn');
+
+        let isEncodeMode = true;
+
+        function convertToBlockElement(text) {
+            if (!text) return "";
+            return text.split('')
+                .map(char => char.charCodeAt(0).toString(16).padStart(4, '0'))
+                .join('')
+                .split('')
+                .map(hchar => UNICODE_BLOCK_MAP[hchar] || '')
+                .join('');
+        }
+
+        function deconvertFromBlockElement(blocks) {
+            if (!blocks) return "";
+            const hex = [...blocks].map(b => REVERSE_BLOCK_MAP[b] || '').join('');
+            let result = '';
+            for (let i = 0; i < hex.length; i += 4) {
+                const part = hex.substr(i, 4);
+                if (part.length === 4) result += String.fromCharCode(parseInt(part, 16));
+            }
+            return result;
+        }
+
+        function update() {
+            const val = inputEl.value;
+            outputEl.textContent = isEncodeMode ? convertToBlockElement(val) : deconvertFromBlockElement(val);
+        }
+
+        modeToggle.addEventListener('click', () => {
+            isEncodeMode = !isEncodeMode;
+            modeToggle.textContent = `Mode: ${isEncodeMode ? 'Encode' : 'Decode'}`;
+            update();
+        });
+
+        inputEl.addEventListener('input', update);
+
+        copyBtn.addEventListener('click', () => {
+            if (!outputEl.textContent) return;
+            navigator.clipboard.writeText(outputEl.textContent);
+            const originalText = copyBtn.textContent;
+            copyBtn.textContent = "Done";
+            setTimeout(() => copyBtn.textContent = originalText, 1000);
+        });
+    </script>
+</body>
+</html>

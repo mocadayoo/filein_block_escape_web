@@ -5,15 +5,44 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Block-Element-Escape</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        /* delete spin button */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* for firefox */
+        input[type=number] {
+            appearance: textfield;
+            -moz-appearance: textfield;
+        }
+    </style>
 </head>
 <body class="bg-black text-white flex items-center justify-center min-h-screen p-6 uppercase tracking-tighter">
 
     <div class="w-full max-w-2xl space-y-4">
         <div class="flex items-center justify-between px-1">
-            <button id="modeToggle" class="text-[10px] text-white/40 hover:text-white transition-colors cursor-pointer">
+            <button id="modeToggle" class="text-[10px] text-white/40 hover:text-white transition-all cursor-pointer border border-white/15 px-3 py-1.5 rounded-md hover:border-white/40 hover:bg-white/5 active:scale-95">
                 Mode: Encode
             </button>
-            <button id="copyBtn" class="text-[10px] text-white/40 hover:text-white transition-colors cursor-pointer">Copy</button>
+            
+            <div class="flex items-center border border-white/15 rounded-md overflow-hidden bg-white/5">
+                <button id="countDown" class="px-3 py-1.5 text-[10px] text-white/40 hover:text-white hover:bg-white/10 transition-colors cursor-pointer">-</button>
+                <input 
+                    type="number" 
+                    id="countInput" 
+                    value="1" 
+                    min="1"
+                    class="w-10 bg-transparent text-center text-[10px] font-mono text-white focus:outline-none border-x border-white/10 py-1.5"
+                >
+                <button id="countUp" class="px-3 py-1.5 text-[10px] text-white/40 hover:text-white hover:bg-white/10 transition-colors cursor-pointer">+</button>
+            </div>
+
+            <button id="copyBtn" class="text-[10px] text-white/40 hover:text-white transition-all cursor-pointer border border-white/15 px-3 py-1.5 rounded-md hover:border-white/40 hover:bg-white/5 active:scale-95">
+                Copy
+            </button>
         </div>
 
         <div class="space-y-4 text-sm lowercase tracking-normal">
@@ -26,7 +55,7 @@
 
             <div 
                 id="textOutput"
-                class="min-h-[160px] w-full rounded-md border border-white/15 bg-white/5 p-4 text-2xl break-all leading-relaxed text-white"
+                class="min-h-[160px] w-full rounded-md border border-white/15 bg-white/5 p-4 text-2xl break-all leading-relaxed text-white selection:bg-white selection:text-black"
             ></div>
         </div>
     </div>
@@ -44,34 +73,59 @@
         const outputEl = document.getElementById('textOutput');
         const modeToggle = document.getElementById('modeToggle');
         const copyBtn = document.getElementById('copyBtn');
+        const countInput = document.getElementById('countInput');
+        const countUp = document.getElementById('countUp');
+        const countDown = document.getElementById('countDown');
 
         let isEncodeMode = true;
 
-        function convertToBlockElement(text) {
+        function convertToBlockElement(text, iterations) {
             if (!text) return "";
-            return text.split('')
-                .map(char => char.charCodeAt(0).toString(16).padStart(4, '0'))
-                .join('')
-                .split('')
-                .map(hchar => UNICODE_BLOCK_MAP[hchar] || '')
-                .join('');
+            let result = text;
+            for (let i = 0; i < iterations; i++) {
+                result = result.split('')
+                    .map(char => char.charCodeAt(0).toString(16).padStart(4, '0'))
+                    .join('')
+                    .split('')
+                    .map(hchar => UNICODE_BLOCK_MAP[hchar] || '')
+                    .join('');
+            }
+            return result;
         }
 
-        function deconvertFromBlockElement(blocks) {
+        function deconvertFromBlockElement(blocks, iterations) {
             if (!blocks) return "";
-            const hex = [...blocks].map(b => REVERSE_BLOCK_MAP[b] || '').join('');
-            let result = '';
-            for (let i = 0; i < hex.length; i += 4) {
-                const part = hex.substr(i, 4);
-                if (part.length === 4) result += String.fromCharCode(parseInt(part, 16));
+            let result = blocks;
+            for (let i = 0; i < iterations; i++) {
+                const hex = [...result].map(b => REVERSE_BLOCK_MAP[b] || '').join('');
+                let temp = '';
+                for (let j = 0; j < hex.length; j += 4) {
+                    const part = hex.substr(j, 4);
+                    if (part.length === 4) temp += String.fromCharCode(parseInt(part, 16));
+                }
+                if (!temp) break;
+                result = temp;
             }
             return result;
         }
 
         function update() {
             const val = inputEl.value;
-            outputEl.textContent = isEncodeMode ? convertToBlockElement(val) : deconvertFromBlockElement(val);
+            const iterations = parseInt(countInput.value) || 1;
+            outputEl.textContent = isEncodeMode ? convertToBlockElement(val, iterations) : deconvertFromBlockElement(val, iterations);
         }
+
+        countUp.addEventListener('click', () => {
+            countInput.value = parseInt(countInput.value) + 1;
+            update();
+        });
+        countDown.addEventListener('click', () => {
+            if (parseInt(countInput.value) > 1) {
+                countInput.value = parseInt(countInput.value) - 1;
+                update();
+            }
+        });
+        countInput.addEventListener('input', update);
 
         modeToggle.addEventListener('click', () => {
             isEncodeMode = !isEncodeMode;
@@ -85,7 +139,7 @@
             if (!outputEl.textContent) return;
             navigator.clipboard.writeText(outputEl.textContent);
             const originalText = copyBtn.textContent;
-            copyBtn.textContent = "Done";
+            copyBtn.textContent = "Copied!";
             setTimeout(() => copyBtn.textContent = originalText, 1000);
         });
     </script>

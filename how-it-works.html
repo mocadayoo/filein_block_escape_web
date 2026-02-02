@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,13 +8,33 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
         /* custom scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
 
         /* for firefox */
-        * { scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, 0.1) transparent; }
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+        }
+
+        /* issue 1 font fix */
+        body {
+            font-family: "Arial", sans-serif;
+        }
 
         /* glass effect */
         .glass {
@@ -24,21 +45,27 @@
         }
     </style>
 </head>
+
 <body class="bg-black text-white flex flex-col items-center min-h-screen p-6 pt-20">
 
     <div class="w-full max-w-2xl space-y-16 lowercase tracking-normal">
-        
+
         <header class="text-center space-y-2">
             <p class="text-2xl font-light tracking-tighter uppercase">How it works</p>
-            <a href="index.html" class="inline-block text-[10px] text-white/20 hover:text-white transition-colors pt-4">← Back to Tool</a>
+            <a href="index.html"
+                class="inline-block text-[10px] text-white/20 hover:text-white transition-colors pt-4">← Back to
+                Tool</a>
         </header>
 
         <section class="space-y-6">
             <h2 class="uppercase text-[9px] tracking-widest text-white/30 border-b border-white/10 pb-2">Mechanism</h2>
             <div class="space-y-4 text-sm text-white/70 leading-relaxed font-light">
-                <p>1. 入力された各文字を <span class="text-white">UTF-16</span> 形式の <span class="text-white">16進数</span> (0000-ffff) に変換します。</p>
+                <p>1. 入力された各文字を <span class="text-white">UTF-16</span> 形式の <span class="text-white">16進数</span>
+                    (0000-ffff) に変換します。</p>
                 <p>2. 得られた16進数の各桁（0-f）を、下記の対応表に従って <span class="text-white">Unicodeブロック要素</span> へ置換します。</p>
-                <p>3. <span class="text-white">Iteration (Count)</span> を増やすと、生成されたブロック要素自体を「新たな文字列」として読み取り、再度手順1から処理を繰り返します。これにより、文字数は1ステップごとに4倍（1文字 → 4桁の16進数 → 4つのブロック）に増加します。</p>
+                <p>3. <span class="text-white">Iteration (Count)</span>
+                    を増やすと、生成されたブロック要素自体を「新たな文字列」として読み取り、再度手順1から処理を繰り返します。これにより、文字数は1ステップごとに4倍（1文字 → 4桁の16進数 →
+                    4つのブロック）に増加します。</p>
                 <p class="text-xs">※ 使用しているUnicode文字の仕様上、フォントや環境によっては一部のブロックの形状が似通っており、肉眼での判別が難しい場合があります。</p>
             </div>
         </section>
@@ -47,7 +74,7 @@
             <h2 class="uppercase text-[9px] tracking-widest text-white/30 border-b border-white/10 pb-2">Block Map</h2>
             <div class="grid grid-cols-4 md:grid-cols-8 gap-2">
                 <script>
-                    const MAP = {'0': '▐', '1': '░', '2': '▒', '3': '▓', '4': '▔', '5': '▕', '6': '▖', '7': '▗', '8': '▘', '9': '▙', 'a': '▚', 'b': '▛', 'c': '▜', 'd': '▝', 'e': '▞', 'f': '▟'};
+                    const MAP = { '0': '▐', '1': '░', '2': '▒', '3': '▓', '4': '▔', '5': '▕', '6': '▖', '7': '▗', '8': '▘', '9': '▙', 'a': '▚', 'b': '▛', 'c': '▜', 'd': '▝', 'e': '▞', 'f': '▟' };
                     Object.entries(MAP).forEach(([hex, block]) => {
                         document.write(`
                             <div class="border border-white/10 bg-white/5 p-3 rounded-lg text-center">
@@ -64,22 +91,26 @@
             <div class="border-b border-white/10 pb-2">
                 <h2 class="uppercase text-[9px] tracking-widest text-white/30">Manual Converter</h2>
             </div>
-            
+
             <div class="space-y-4">
                 <div class="flex justify-between">
-                <p class="text-[10px] text-white/40">16進数 (0-f) を直接入力して、手動でブロックを生成できます。</p>
-                <button id="manualCopyBtn" class="text-[9px] text-white/30 hover:text-white transition-all cursor-pointer border border-white/10 px-2 py-1 rounded hover:bg-white/5 active:scale-95 uppercase">
-                    Copy
-                </button>
+                    <p class="text-[10px] text-white/40">16進数 (0-f) を直接入力して、手動でブロックを生成できます。</p>
+                    <button id="manualCopyBtn"
+                        class="text-[9px] text-white/30 hover:text-white transition-all cursor-pointer border border-white/10 px-2 py-1 rounded hover:bg-white/5 active:scale-95 uppercase">
+                        Copy
+                    </button>
                 </div>
-                <input type="text" id="manualInput" placeholder="input..." maxlength="64" class="h-12 w-full rounded-md border border-white/15 bg-transparent px-3 py-2 text-white placeholder:text-white/20 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white transition-all font-mono lowercase">
-                <div id="manualOutput" class="min-h-[100px] w-full rounded-md border border-white/15 bg-white/5 p-4 text-5xl break-all text-white flex items-center justify-center"></div>
+                <input type="text" id="manualInput" placeholder="input..." maxlength="64"
+                    class="h-12 w-full rounded-md border border-white/15 bg-transparent px-3 py-2 text-white placeholder:text-white/20 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white transition-all font-mono lowercase">
+                <div id="manualOutput"
+                    class="min-h-[100px] w-full rounded-md border border-white/15 bg-white/5 p-4 text-5xl break-all text-white flex items-center justify-center">
+                </div>
             </div>
         </section>
     </div>
 
     <script>
-        const UNICODE_BLOCK_MAP = {'0': '▐', '1': '░', '2': '▒', '3': '▓', '4': '▔', '5': '▕', '6': '▖', '7': '▗', '8': '▘', '9': '▙', 'a': '▚', 'b': '▛', 'c': '▜', 'd': '▝', 'e': '▞', 'f': '▟'};
+        const UNICODE_BLOCK_MAP = { '0': '▐', '1': '░', '2': '▒', '3': '▓', '4': '▔', '5': '▕', '6': '▖', '7': '▗', '8': '▘', '9': '▙', 'a': '▚', 'b': '▛', 'c': '▜', 'd': '▝', 'e': '▞', 'f': '▟' };
         const manualInput = document.getElementById('manualInput');
         const manualOutput = document.getElementById('manualOutput');
         const manualCopyBtn = document.getElementById('manualCopyBtn');
@@ -94,7 +125,7 @@
         manualCopyBtn.addEventListener('click', () => {
             const text = manualOutput.textContent;
             if (!text) return;
-            
+
             navigator.clipboard.writeText(text).then(() => {
                 const originalText = manualCopyBtn.textContent;
                 manualCopyBtn.textContent = "Copied!";
@@ -103,4 +134,5 @@
         });
     </script>
 </body>
+
 </html>

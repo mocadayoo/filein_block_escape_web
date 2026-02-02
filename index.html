@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,13 +11,16 @@
         ::-webkit-scrollbar {
             width: 6px;
         }
+
         ::-webkit-scrollbar-track {
             background: transparent;
         }
+
         ::-webkit-scrollbar-thumb {
             background: rgba(255, 255, 255, 0.1);
             border-radius: 10px;
         }
+
         ::-webkit-scrollbar-thumb:hover {
             background: rgba(255, 255, 255, 0.2);
         }
@@ -25,6 +29,11 @@
         * {
             scrollbar-width: thin;
             scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+        }
+
+        /* issue 1 font fix */
+        body {
+            font-family: "Arial", sans-serif;
         }
 
         /* delete spin button */
@@ -49,78 +58,86 @@
         }
     </style>
 </head>
+
 <body class="bg-black text-white flex flex-col items-center min-h-screen p-6 uppercase tracking-tighter pt-24">
 
     <div class="w-full max-w-2xl space-y-4">
         <div class="relative flex items-center justify-between px-1 h-12">
-            <div id="warningMsg" class="absolute -top-6 left-0 right-0 text-center text-[9px] transition-all duration-300 opacity-0 pointer-events-none tracking-normal lowercase">
+            <div id="warningMsg"
+                class="absolute -top-6 left-0 right-0 text-center text-[9px] transition-all duration-300 opacity-0 pointer-events-none tracking-normal lowercase">
                 警告: このカウントを増やすと指数関数的に文字の量が増えるためブラウザがクラッシュする可能性があります。
             </div>
 
-            <button id="modeToggle" class="text-[10px] text-white/40 hover:text-white transition-all cursor-pointer border border-white/15 px-3 py-1.5 rounded-md hover:border-white/40 hover:bg-white/5 active:scale-95">
+            <button id="modeToggle"
+                class="text-[10px] text-white/40 hover:text-white transition-all cursor-pointer border border-white/15 px-3 py-1.5 rounded-md hover:border-white/40 hover:bg-white/5 active:scale-95">
                 Mode: Encode
             </button>
-            
+
             <div class="flex items-center border border-white/15 rounded-md overflow-hidden bg-white/5">
-                <button id="countDown" class="px-3 py-1.5 text-[10px] text-white/40 hover:text-white hover:bg-white/10 transition-colors cursor-pointer">-</button>
-                <input 
-                    type="number" 
-                    id="countInput" 
-                    value="1" 
-                    min="1"
-                    max="5"
-                    class="w-10 bg-transparent text-center text-[10px] font-mono text-white focus:outline-none border-x border-white/10 py-1.5"
-                >
-                <button id="countUp" class="px-3 py-1.5 text-[10px] text-white/40 hover:text-white hover:bg-white/10 transition-colors cursor-pointer">+</button>
+                <button id="countDown"
+                    class="px-3 py-1.5 text-[10px] text-white/40 hover:text-white hover:bg-white/10 transition-colors cursor-pointer">-</button>
+                <input type="number" id="countInput" value="1" min="1" max="5"
+                    class="w-10 bg-transparent text-center text-[10px] font-mono text-white focus:outline-none border-x border-white/10 py-1.5">
+                <button id="countUp"
+                    class="px-3 py-1.5 text-[10px] text-white/40 hover:text-white hover:bg-white/10 transition-colors cursor-pointer">+</button>
             </div>
 
-            <button id="copyBtn" class="text-[10px] text-white/40 hover:text-white transition-all cursor-pointer border border-white/15 px-3 py-1.5 rounded-md hover:border-white/40 hover:bg-white/5 active:scale-95">
+            <button id="copyBtn"
+                class="text-[10px] text-white/40 hover:text-white transition-all cursor-pointer border border-white/15 px-3 py-1.5 rounded-md hover:border-white/40 hover:bg-white/5 active:scale-95">
                 Copy
             </button>
         </div>
 
         <div class="space-y-4 text-sm lowercase tracking-normal">
-            <input 
-                type="text" 
-                id="textInput"
-                placeholder="input..."
-                class="flex h-12 w-full rounded-md border border-white/15 bg-transparent px-3 py-2 text-white placeholder:text-white/20 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white transition-all"
-            >
+            <input type="text" id="textInput" placeholder="input..."
+                class="flex h-12 w-full rounded-md border border-white/15 bg-transparent px-3 py-2 text-white placeholder:text-white/20 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white transition-all">
 
-            <div 
-                id="textOutput"
-                class="min-h-[160px] w-full rounded-md border border-white/15 bg-white/5 p-4 text-2xl break-all leading-relaxed text-white selection:bg-white selection:text-black"
-            ></div>
+            <div id="textOutput"
+                class="min-h-[160px] w-full rounded-md border border-white/15 bg-white/5 p-4 text-2xl break-all leading-relaxed text-white selection:bg-white selection:text-black">
+            </div>
         </div>
     </div>
 
-    <a href="how-it-works.html" class="fixed bottom-6 left-6 text-[10px] text-white/15 hover:text-white/40 transition-colors cursor-pointer uppercase">
+    <a href="how-it-works.html"
+        class="fixed bottom-6 left-6 text-[10px] text-white/15 hover:text-white/40 transition-colors cursor-pointer uppercase">
         How it works
     </a>
 
-    <button id="openCredit" class="fixed bottom-6 right-6 text-[10px] text-white/15 hover:text-white/40 transition-colors cursor-pointer uppercase">
+    <button id="openCredit"
+        class="fixed bottom-6 right-6 text-[10px] text-white/15 hover:text-white/40 transition-colors cursor-pointer uppercase">
         Credit
     </button>
 
-    <div id="creditModal" class="fixed inset-0 z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300 bg-black/40 backdrop-blur-sm">
+    <div id="creditModal"
+        class="fixed inset-0 z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300 bg-black/40 backdrop-blur-sm">
         <div class="glass w-full max-w-xs p-8 rounded-2xl relative space-y-6 text-center">
-            <button id="closeCredit" class="absolute top-4 right-4 text-white/20 hover:text-white transition-colors cursor-pointer p-1">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            <button id="closeCredit"
+                class="absolute top-4 right-4 text-white/20 hover:text-white transition-colors cursor-pointer p-1">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
             </button>
 
             <div class="space-y-4 lowercase tracking-normal text-[11px]">
                 <div class="space-y-1">
                     <p class="text-white/20 uppercase text-[9px] tracking-widest">Idea & Original Project</p>
-                    <a href="https://github.com/filein-dev/Block-Elements-Escape/" target="_blank" class="block text-white/60 hover:text-white underline underline-offset-4 decoration-white/10 transition-colors">Filein / Block-Elements-Escape</a>
+                    <a href="https://github.com/filein-dev/Block-Elements-Escape/" target="_blank"
+                        class="block text-white/60 hover:text-white underline underline-offset-4 decoration-white/10 transition-colors">Filein
+                        / Block-Elements-Escape</a>
                 </div>
 
                 <div class="space-y-1">
                     <p class="text-white/20 uppercase text-[9px] tracking-widest">Dev</p>
-                    <a href="https://github.com/mocadayoo" target="_blank" class="block text-white/60 hover:text-white underline underline-offset-4 decoration-white/10 transition-colors">@mocadayoo</a>
+                    <a href="https://github.com/mocadayoo" target="_blank"
+                        class="block text-white/60 hover:text-white underline underline-offset-4 decoration-white/10 transition-colors">@mocadayoo</a>
                 </div>
 
                 <div class="space-y-1 pt-2">
-                    <a href="https://github.com/mocadayoo/filein_block_escape_web" target="_blank" class="inline-block px-4 py-2 border border-white/10 rounded-full text-white/30 hover:text-white hover:bg-white/5 transition-all active:scale-95">Source Code</a>
+                    <a href="https://github.com/mocadayoo/filein_block_escape_web" target="_blank"
+                        class="inline-block px-4 py-2 border border-white/10 rounded-full text-white/30 hover:text-white hover:bg-white/5 transition-all active:scale-95">Source
+                        Code</a>
                 </div>
             </div>
         </div>
@@ -241,4 +258,5 @@
         });
     </script>
 </body>
+
 </html>
